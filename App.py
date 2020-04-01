@@ -18,9 +18,9 @@ from WebHook import github_moniter
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 app = Flask('filemoniter')
-app.config["DEBUG"] = True
+app.config["DEBUG"] = False
 app.config["NOTE_ABS_PATH"] = os.environ.get('PRD_NOTE_PATH', 'D:\\Project\\Notable\\notes')
-app.config["FLASK_RUN_PORT"] = 5002
+app.config["FLASK_RUN_PORT"] = 8071
 
 # route
 app.add_url_rule('/githubwebhook', view_func=github_moniter)
@@ -32,4 +32,4 @@ watcher.run_with_thread()
 
 print('done')
 if __name__ == '__main__':
-    app.run(port=5001)
+    app.run(port=8072)
