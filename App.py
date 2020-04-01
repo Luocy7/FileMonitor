@@ -8,6 +8,7 @@
 import os
 
 import logging
+from dotenv import load_dotenv
 
 from flask import Flask
 
@@ -15,6 +16,10 @@ from FileObserveUtil import Watcher
 from WebHook import github_moniter
 
 basedir = os.path.abspath(os.path.dirname(__file__))
+
+dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+if os.path.exists(dotenv_path):
+    load_dotenv(dotenv_path)
 
 app = Flask('filemoniter')
 app.config["DEBUG"] = False
@@ -30,11 +35,12 @@ file_handler.setLevel(logging.INFO)
 app.logger.addHandler(file_handler)
 
 # route
-app.add_url_rule('/githubwebhook', view_func=github_moniter)
+app.add_url_rule('/githubwebhook', view_func=github_moniter, methods=['post'])
 
 # Watcher
 
-watcher = Watcher(app.config["NOTE_ABS_PATH"])
+watcher = Watcher(app.config["NOTE_ABS_PATH"],
+                  url=os.environ.get('PRD_POST_URL', 'http://127.0.0.1:5000/githubwebhook'))
 watcher.run_with_thread()
 
 if __name__ == '__main__':

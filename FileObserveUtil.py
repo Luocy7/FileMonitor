@@ -66,7 +66,7 @@ class Watcher(object):
         self.pdata["time"] = ts
         self.pdata["src_name"] = Path(event.src_path).stem
 
-        if event.event_type == 'deleted':
+        if event.event_type in ['deleted', 'created']:
             self.pdata["payload"] = ''
         elif event.event_type == 'moved':
             self.pdata["dest_name"] = Path(event.dest_path).stem
@@ -78,11 +78,17 @@ class Watcher(object):
 
         if self.url:
             self.post_request()
-        self.pdata.pop("payload")
-        self.logger.info(self.pdata)
+        else:
+            self.pdata.pop("payload")
+            self.logger.info(self.pdata)
 
     def post_request(self):
         r = requests.post(url=self.url, data=self.pdata)
+        self.pdata.pop("payload")
+        if r.status_code == 200:
+            self.logger.info('Post Success --> {}'.format(self.pdata))
+        else:
+            self.logger.warning('Post Fail --> {} -- Response: {}'.format(self.pdata, r.text.strip()))
 
     def run_watcher(self):
         observer = Observer()
