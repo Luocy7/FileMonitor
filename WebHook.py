@@ -13,7 +13,7 @@ from flask import request, current_app, jsonify
 from utils.RestResUtil import RestResponse
 
 
-def git_status():
+def git_action():
     note_path = current_app.config['NOTE_ABS_PATH']
     cmd = ['git pull origin master']
     os.chdir(note_path)
@@ -48,7 +48,8 @@ def github_moniter():
         if request_data.get("repository", {}).get("name") != current_app.config['GITHUB_REPO_NAME']:
             return jsonify(RestResponse.fail(msg='Dont care!', code=200)), 200
 
-        current_app.logger.info('Webhook celery Job  Start')
+        current_app.logger.info('git action start')
+        git_action()
 
         return jsonify(RestResponse.ok(msg='Success', code=200))
     else:

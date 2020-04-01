@@ -110,7 +110,7 @@ class Log(object):
     def __init__(self):
 
         # 文件的命名
-        self.log_file = Path(__file__).parent.absolute() / 'filemonitor.log'
+        self.log_file = Path(__file__).parent.absolute() / 'logs' / 'filemonitor.log'
         self.logger = logging.getLogger()
         self.logger.setLevel(logging.DEBUG)
         self.formatter = logging.Formatter('[%(asctime)s] - %(filename)s] - %(levelname)s: %(message)s')
