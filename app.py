@@ -14,6 +14,7 @@ from flask import Flask
 
 from FileObserveUtil import Watcher
 from WebHook import github_moniter
+from PostManage import post_manage
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -36,11 +37,11 @@ app.logger.addHandler(file_handler)
 
 # route
 app.add_url_rule('/githubwebhook', view_func=github_moniter, methods=['post'])
-
+app.add_url_rule('/post/manage', view_func=post_manage, methods=['post'])
 # Watcher
 
 watcher = Watcher(app.config["NOTE_ABS_PATH"],
-                  url=os.environ.get('PRD_POST_URL', 'http://127.0.0.1:5000/githubwebhook'))
+                  url=os.environ.get('PRD_POST_URL', 'http://127.0.0.1:5000/post/manage'))
 watcher.run_with_thread()
 
 if __name__ == '__main__':

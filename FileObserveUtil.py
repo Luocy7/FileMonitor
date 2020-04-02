@@ -62,33 +62,26 @@ class Watcher(object):
         self.logger = Log()
 
     def handle_event(self, event, ts):
-        self.pdata["method"] = event.event_type
-        self.pdata["time"] = ts
-        self.pdata["src_name"] = Path(event.src_path).stem
+        self.pdata = {"method": event.event_type, "time": ts, "md_name": Path(event.src_path).stem}
 
-        if event.event_type in ['deleted', 'created']:
-            self.pdata["payload"] = ''
-        elif event.event_type == 'moved':
+        if event.event_type == 'moved':
             self.pdata["dest_name"] = Path(event.dest_path).stem
-            self.pdata["payload"] = ''
-        else:
+        elif event.event_type == 'modified':
             md_file = event.src_path
             md = MdFile(md_file)
-            self.pdata["payload"] = md.get_start()
+            self.pdata.update(md.get_start())
 
         if self.url:
             self.post_request()
-        else:
-            self.pdata.pop("payload")
-            self.logger.info(self.pdata)
 
     def post_request(self):
-        r = requests.post(url=self.url, data=self.pdata)
-        self.pdata.pop("payload")
+        r = requests.post(url=self.url, json=self.pdata)
         if r.status_code == 200:
-            self.logger.info('Post Success --> {}'.format(self.pdata))
+            self.logger.info('Post Success --> {} {}'.format(self.pdata.get("method"),
+                                                             self.pdata.get("md_name")))
         else:
-            self.logger.warning('Post Fail --> {} -- Response: {}'.format(self.pdata, r.text.strip()))
+            self.logger.warning('Post Fail --> {} {}'.format(self.pdata.get("method"),
+                                                             self.pdata.get("md_name")))
 
     def run_watcher(self):
         observer = Observer()
